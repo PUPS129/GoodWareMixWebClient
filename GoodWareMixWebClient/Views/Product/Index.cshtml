@@ -1,0 +1,555 @@
+﻿@using MongoDB.Bson
+@using Newtonsoft.Json
+@using System.Text.RegularExpressions
+@using GoodWareMixWebClient.Controllers
+@using GoodWareMixWebClient.Model
+@using System.Web
+
+@model PagedResponse<List<Product>>
+
+@{
+    ViewData["Title"] = "Список товаров";
+}
+
+<head>	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="~/css/bootstrap.min.css" rel="stylesheet">
+	<link href="~/css/app.css" rel="stylesheet">
+	<link href="~/css/icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">   
+
+</head>
+
+<style>
+	body .ui-autocomplete {
+		background-color: #333c47;
+		color: white;
+		word-wrap: break-word;
+		overflow-y: auto;
+		overflow-x: hidden;
+		/* font-family to all */
+		}
+		.form-select option {
+			width: 315px;
+			word-wrap:break-word
+		}
+		.lazy-image {
+		  width: 100%;
+		  height: auto;
+		  background-size: cover;
+		}
+
+</style>
+
+
+	<form asp-action="Index" asp-controller="Product" method="get">
+	<!--start page wrapper -->
+		<div class="page-wrapper">
+			<div class="page-content">
+
+		        <h4>Список товаров</h4>
+
+				<div class="row">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-body">
+								<div class="row row-cols-auto g-3">
+									<div class="col-lg-9 col-xl-9">
+										<div class="position-relative">
+											<div class="input-group" style="width:100%;">
+												<input type="text" id="Search" name="Search" class="form-control" placeholder="Введите название или артикул товара"  value="@ViewBag.Search"/>
+												<button type="submit" style="margin-right:8px" class="btn btn-light" id="butt">
+													<i class="bi bi-search"></i>
+												</button>                              
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-3 col-xl-3">
+											<div class="row row-cols-auto g-3" style="float:right">
+
+												<div class="col">
+													<div class="dropdown">
+														<button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Сортировка</button>
+														<ul class="dropdown-menu">
+															<li><a class="dropdown-item" asp-action="Index" asp-action="Product">Без сортировки</a>
+															</li>
+															<li><a class="dropdown-item" asp-action="Index" asp-action="Product" asp-route-OrderBy="OrderBy">По возрастанию даты добавления</a>
+															</li>
+															<li><a class="dropdown-item" asp-action="Index" asp-action="Product" asp-route-OrderBy="OrderByDescending">По убыванию даты добавления</a>
+															</li>
+														</ul>
+													</div>
+
+													@*<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+														<button type="button" class="btn btn-light">Сортировка</button>
+														<div class="btn-group" role="group">
+														  <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle dropdown-toggle-nocaret px-1 bx bx-chevron-down" data-bs-toggle="dropdown" aria-expanded="false">
+														  </button>
+														  <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+															<li><a class="dropdown-item" asp-action="Index" asp-action="Product">Без сортировки</a></li>
+															<li><a class="dropdown-item" asp-action="Index" asp-action="Product" asp-route-OrderBy="OrderBy">По возрастанию даты добавления</a></li>
+															<li><a class="dropdown-item" asp-action="Index" asp-action="Product" asp-route-OrderBy="OrderByDescending">По убыванию даты добавления</a></li>
+														  </ul>
+														</div>
+													  </div>*@
+												</div>
+												<div class="col">
+													<button type="button" class="btn btn-light position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+														<i class='bx bx-slider'></i> Фильтры <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">@ViewBag.CountFilter<span class="visually-hidden">
+													</button>
+												</div>
+												<div class="col">
+													<div class="btn-group" role="group" >
+														<a type="button" class="btn btn-light bx bxs-grid bx-xs" asp-route-DisplayMode="0" asp-action="Index" asp-controller="Product" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Tooltip on bottom"></a>
+														<a type="button" class="btn btn-light bx bx-list-ul" asp-route-DisplayMode="1" asp-action="Index" asp-controller="Product" ></a>
+													</div>
+												</div>
+											</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+					@if (Model.Data.Count() != 0)
+					{
+						@if (ViewBag.DisplayMode == "0")
+						{
+							<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 product-grid" style="margin-bottom:20px">
+
+								@foreach (var item in Model.Data)
+								{
+
+									<div class="col">
+									<div class="card">
+										<a asp-action="About" asp-controller="Product" target="_blank" asp-route-productID="@item.Id">
+											<div class="container" style="margin-top:10px">
+												<img src="@Connection.DefaultConnection/Images/@item.Images.FirstOrDefault()"  loading=“lazy” class="card-img-top image_placeholder" alt="..." style="object-fit:contain; height:250px; width:250px;">
+											</div>
+
+											<div class="card-body">
+												<h6 class="card-title cursor-pointer">@item.Title</h6>
+												<div class="clearfix">
+													<p class="mb-0 float-start">Артикул <strong>@item.InternalCode</strong> </p>
+												</div>
+												<div class="clearfix">
+													<p class="mb-0 float-start">Поставщик <strong>@item.SupplierId</strong> </p>
+												</div>
+												<div class="clearfix">
+													<p class="mb-0 float-start">Вендор <strong>@item.Vendor</strong> </p>
+												</div>
+
+											</div>
+										</a>
+									</div>
+								</div>
+								}
+							</div>
+						}
+						else if (ViewBag.DisplayMode == "1")
+						{
+							<div class="row">
+								<div class="col-12">
+									<div class="card">
+										<div class="card-body">
+											<div >
+												<table class="table align-middle mb-0 table-hover dataTable no-footer"  role="grid" >
+													<thead class="table-light">
+														<tr role="row"><th>Наименование</th><th>Артикул</th><th>Поставщик</th><th>Вендор</th><th></th></tr>
+													</thead>
+													<tbody>
+														@foreach (var item in Model.Data)
+														{
+															<tr role="row" class="odd">
+																<td>
+																	<div class="d-flex align-items-center">
+																		<div class="">
+																			<img src="@Connection.DefaultConnection/Images/@item.Images.FirstOrDefault()"  loading=“lazy” class="rounded-circle" width="46" height="46" alt="" style="object-fit:contain;">
+																		</div>
+																		<div class="ms-2">
+																			<h6 class="mb-1 font-14">@item.Title</h6>
+				@*															<p class="mb-0 font-13">Refrence Id #7865986</p>
+				*@														</div>
+																	</div>
+																</td>
+																<td>@item.InternalCode</td>
+																<td>@item.SupplierId</td>
+																<td>@item.Vendor</td>
+																<td><a class="btn btn-light" asp-action="About" asp-controller="Product" target="_blank" asp-route-productID="@item.Id" style="float:right"><i class="bi bi-info-lg"></i></a> </td>
+
+															</tr>	
+														}
+									
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+						}
+
+					}
+
+		<!--Empty Search Case-->
+        @if (Model.Data.Count() == 0)
+        {
+            <div class="row">
+			    <div class="col-12">
+				    <div class="card">
+					    <div class="card-body" style="text-align:center; display:table; height:600px; line-height:600px;">
+                            <span style="display:table-cell; vertical-align:middle;">
+                                <h2>Ничего не найдено</h2>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <!--Empty Search Case END-->
+
+		@if (Model.Data.Count() != 0)
+        {
+        <!--Pagination Section-->
+        <div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+                        <form asp-action="Index" asp-controller="Product">
+
+                            <div style="float:right">
+                            <select class="form-select" onchange="this.form.submit()" name="PageSize" style="width:Auto; display:inline-block;" id="PageSize">
+                                        <option value="@Model.PageSize">@Model.PageSize</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                    <div style="display:inline-block;">
+
+                                    <ul class="pagination">
+
+                                        <li class="page-item"><a class="page-link" asp-action="Index"
+                                                asp-controller="Product" asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@(1)"><i
+                                                    class="bi bi-chevron-double-left"></i></a></li>
+                                        @if (Model.PreviousPage != null)
+                                            {
+                                            <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Product"
+                                                    asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@((Model.PageNumber <= 1 ? 1 : Model.PageNumber-1))"><i
+                                                    class="bi bi-chevron-left"></i></a></li>    
+                                            }
+                                            @if (Model.NextPage != null)
+                                            {
+                                                <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Product"
+                                                asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@((Model.PageNumber == @Model.TotalPages ? @Model.TotalPages : Model.PageNumber+1))"><i
+                                                    class="bi bi-chevron-right"></i></a></li>
+                                            }
+
+                                    
+
+                                        <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Product"
+                                                    asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@(@Model.TotalPages)"><i
+                                                    class="bi bi-chevron-double-right"></i></a></li>
+                                    </ul>
+                                    </div>
+                                        <p class="lh-lg" style="display:inline-block; margin-left:25px">
+                                    Страница
+                                    @Model.PageNumber
+                                    из
+                                    @Model.TotalPages
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Pagination Section END-->            
+        }
+			
+				
+		</div>
+		<!--end page wrapper -->
+		
+		@*<!--start overlay-->
+		<div class="overlay toggle-icon"></div>
+		<!--end overlay-->*@
+
+
+		
+		<div class="offcanvas offcanvas-end" style="background-image: linear-gradient(45deg, #29323c, #485563);" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" >
+		  <div class="offcanvas-header">
+			<h5 id="offcanvasRightLabel">Фильтры</h5>
+			<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		  </div>
+		  <div class="offcanvas-body ui-front">
+			
+
+
+
+			  <div id="FilterBody">
+					 <div class="row">
+						 <div class="col">
+							 <button class="btn btn-light" onclick='this.form.submit()'>Применить</button>
+						 </div>
+@*						 <div class="col">
+							 <button class="btn btn-light" onclick='resetFilters()' style="float:right">Очистить</button>
+						</div>*@
+					 </div>
+                     
+					 <hr />
+
+                     <div class="form-check form-switch">
+                        С артикулом
+                        @if (ViewBag.CheckBoxStatus == true)
+                        {
+                            <input type="checkbox" name="InternalCodeCheck" id="InternalCodeCheck" checked class="form-check-input" >
+                        }
+                        else
+                        {
+                            <input type="checkbox" name="InternalCodeCheck" id="InternalCodeCheck"  class="form-check-input" >
+                        }
+
+                      </div>
+                     <hr />
+					 Поставщик
+					 <input placeholder="Введите наименование поставщика" name="autocompleteSupplier" autocomplete="off" id="autocompleteSupplier"  class="form-select" value="@ViewBag.Supplier"/>
+
+                     <hr />
+					 Аттрибуты
+					 <div class="input-group mb-3" >
+                           <input list="DataListAttribute" size="1" id="autocomplete" autocomplete="off" class="form-control" placeholder="Выберите фильтр" />
+							<button data-bs-toggle="tooltip" data-bs-placement="bottom" title="Добавить фильтр" onclick="addFilter()" class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="bi bi-plus-lg"></i></button>
+						</div>
+                     <div id="Test111">
+                        
+
+                          @foreach (BsonDocument item in (ViewData["AttributeKey"] == null ? new BsonArray() : (BsonArray)ViewData["AttributeKey"]))
+                            {
+                    <div id="@item["Key"]" class="container" style="padding:0px">
+                        @item["Key"]
+                        <div class="row">
+
+                            <div class="input-group mb-3">
+                                <select name="Attribute" class="form-select">
+                                        @foreach  (BsonDocument items in (BsonArray)item["AttributeValue"])
+                                        {
+                                            @if (items["Value"] == ViewBag.SelectedItem)
+                                            {
+                                                <option selected value="@item["Key"];@(items["Value"])">@items["Value"]</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item["Key"];@(items["Value"])">@items["Value"]</option>
+                                            }
+                                        }                                    
+                                </select>
+                                <button type="button" onclick="document.getElementById('@(item["Key"].ToString())').remove();" class="btn btn-danger btn-hover-alt"><i class="bi bi-x-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                     </div>
+                    
+                    
+
+                </div>
+				
+		  </div>
+		</div>
+		</form>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
+
+<script>
+
+	jQuery.ui.autocomplete.prototype._resizeMenu = function () {
+	  var ul = this.menu.element;
+	  ul.outerWidth(this.element.outerWidth());
+	}
+
+	$('option').each(function() {
+	  var optionText = this.text;
+	  var newOption = optionText.substring(0, 31);
+	  $(this).text(newOption);
+	});
+</script>
+
+<script>
+	let emptyArr = [];
+	emptyArr = [];
+	function resetFilters()
+	{
+		$.ajax({
+			type: "GET",
+			url: "@Url.Action("Index","Product")",
+			data: {ClearFilter: 1},
+			dataType: "json",
+                success: function (msg){},
+				error:function (req, status, error) {
+                    alert(error);
+				}
+		});
+	}
+</script>
+
+<script>
+	function addFilter() {
+		if (document.getElementById('autocomplete').value != "" && arr1.includes(document.getElementById('autocomplete').value)) {
+			var elem1 = document.createElement("div");
+			var val = document.getElementById('autocomplete').value
+			var elemText = document.createTextNode(val);
+			elem1.id = "AttributeKey";
+			var articleDiv = document.getElementById("FilterBody");
+			elem1.appendChild(elemText);
+
+			$.ajax({
+				type: "GET",
+				url: "@Url.Action("ValueAttribut")",
+				data: { number1: val },
+				//contentType: "application/json; charset=utf-8",
+				dataType: "json",
+				success: function (msg) {
+
+					var Divcontainer = document.createElement("div"); // 1
+
+					Divcontainer.className = "container";
+					Divcontainer.style = "padding:0px";
+					Divcontainer.id = val;
+					var DivRow = document.createElement("div"); // 1
+					DivRow.className = "row";
+
+					var FilterBody = document.createElement("div"); // 1.1
+					FilterBody.className = "input-group mb-3";
+
+					var elem = document.createElement("select"); // 1.1.1
+					elem.className = "form-select";
+					elem.id = "Attribute";
+					elem.name = "Attribute";
+
+					var DivButton = document.createElement("div"); // 1.1.2
+					var Button = document.createElement("button");
+					Button.className = "btn btn-danger btn-hover-alt";
+					Button.type = "button";
+					Button.onclick = function () { Divcontainer.remove(); }
+
+					var ButtonI = document.createElement("i");
+					ButtonI.className = "bi bi-x-lg";
+					Button.appendChild(ButtonI);
+
+					for (let i = 0; i < msg.length; i++) {
+						elem.options[elem.options.length] = new Option(msg[i], val + ";" + msg[i]);
+					}
+
+
+					FilterBody.appendChild(elem); //1.1.1 => 1.1
+					FilterBody.appendChild(Button); // 1.1.2 => 1.1
+
+					DivRow.appendChild(elem1);
+					DivRow.appendChild(FilterBody);
+					Divcontainer.appendChild(DivRow);
+					articleDiv.appendChild(Divcontainer);
+					document.getElementById('autocomplete').value = "";
+				},
+				error: function (req, status, error) {
+					alert(error);
+				}
+			});
+		}
+		}
+
+			var input = document.getElementById('autocomplete');
+	input.oninput = function() {
+		$( "#autocomplete" ).autocomplete({ source: GetNameAttribute()});
+		$( "#autocomplete" ).autocomplete({
+			response: function( event, ui ) {
+				for ( var i = 0; i<ui.content.length; i++ ) {
+		
+					console.log(ui.content[i].value);
+					console.log("************");
+				}
+			}
+		});
+	}
+
+	function GetNameAttribute() {
+	arr1 = [];
+	let arr = [];
+
+	var valueinput = document.getElementById('autocomplete').value;
+	$.ajax({
+		type: "GET",
+		url: "@Url.Action("GetAttribute")",
+		data: { Search: valueinput },
+		//contentType: "application/json; charset=utf-8",
+		dataType: "json",
+		success: function (msg) {
+			for (let i = 0; i < msg.data.length; i++) {
+				console.log(msg.data[i].nameAttribute);
+				arr.push(msg.data[i].nameAttribute);
+			}
+			console.log("-------------------");
+		},
+		error: function (req, status, error) {
+			alert(error);
+		}
+	});
+	arr1 = arr;
+	return arr;
+}
+</script>
+
+<script>
+        function GetSupplierName() {
+        let arr = [];
+        var valueinput = document.getElementById('autocompleteSupplier').value;
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetSupplier","Task")",
+                data: {Search: valueinput},
+                //contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    for(let i = 0; i < msg.data.length;i++)
+                    {
+
+                        console.log(msg.data[i].supplierName);
+                        arr.push(msg.data[i].supplierName);
+                            
+                    }
+                    console.log("-------------------");
+                },
+                error: function (req, status, error) {
+                    alert(error);
+                }
+            }); 
+        return arr;
+    }
+</script>
+<script>
+    var input = document.getElementById('autocompleteSupplier');
+    input.oninput = function() {
+        $( "#autocompleteSupplier" ).autocomplete({ source: GetSupplierName()});
+        $( "#autocompleteSupplier" ).autocomplete({
+            response: function( event, ui ) {
+                for ( var i = 0; i<ui.content.length; i++ ) {
+             
+                    console.log(ui.content[i].value);
+                    console.log("************");
+                }
+            },
+        });         
+    }
+</script> 
+

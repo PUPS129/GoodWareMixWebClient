@@ -1,0 +1,213 @@
+﻿@using GoodWareMixWebClient.Model
+@using GoodWareMixWebClient.ViewModel
+@model AttributeViewModel
+
+@{
+    ViewData["Title"] = "Словарь аттрибутов";
+}
+
+<head>
+	<script src="~/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<form asp-action="Index" asp-controller="Attribute" method="get">
+    <div class="page-wrapper">
+	    <div class="page-content">
+
+            <h4>Словарь аттрибутов</h4>
+            <!--Search Section-->
+            <div class="row">
+			    <div class="col-12">
+				    <div class="card">
+					    <div class="card-body">
+
+                            <div class="input-group" style="width:99.4%; padding:unset; margin:unset">
+                                <input type="text" class="form-control" name="Search"  aria-describedby="button-addon2" placeholder="Введите название аттрибута" value="@ViewBag.Search">
+                                <button class="btn btn-light" type="submit" id="button-addon2">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                            							
+					    </div>
+				    </div>
+			    </div>
+		    </div>
+            <!--Search Section END-->
+
+            <!--Table Section-->
+
+            <div class="row">
+			    <div class="col-12">
+				    <div class="card">
+					    <div class="card-body">
+                            <table class="table">   
+                
+                                <thead>
+                                    <tr>
+                                        <th> Название </th>
+                                        <th> Рейтинг </th>
+                                        <th> Поставщик </th> 
+                                        <th></th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @foreach (var item in Model.AttributePagedResponse.Data)
+                                    {
+                                        <tr>
+                                            <td>@item.NameAttribute</td>
+                                            <td>@item.Rating</td>
+                                            <td>@item.SupplierId</td>
+                                            <td>
+                                                <div style="float:right">
+                                                    @if (item.Fixed)
+                                                    {
+                                                        <i class="bi bi-patch-check-fill" style="color:green; font-size:25px; vertical-align:bottom" data-bs-toggle="tooltip" data-bs-placement="left" title="Проверенный аттрибут"></i>
+                                                    }
+                                                    <a> @Html.ActionLink("Изменить","EditAttributeModal", new {attributeID = item.Id}, new {@class = "compItem btn btn-primary btn-hover-alt", style="height:40px"}) </a>
+
+                                                    <a data-bs-toggle="tooltip" data-bs-placement="bottom" >@Html.ActionLink("","DeleteAttributeModal", new {nameAttribute = item.NameAttribute, id = item.Id}, new {@class = "compItem1 btn btn-danger bx bx-trash bx-sm btn-hover-alt",title="Удалить аттрибут", type="button", style="height:40px"})</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Table Section END-->
+            
+        <!--Empty Search Case-->
+        @if (Model.AttributePagedResponse.Data.Count() == 0)
+        {
+            <div class="row">
+			    <div class="col-12">
+				    <div class="card">
+					    <div class="card-body" style="text-align:center; display:table; height:600px; line-height:600px;">
+                            <span style="display:table-cell; vertical-align:middle;">
+                                <h2>Ничего не найдено</h2>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <!--Empty Search Case END-->
+
+		@if (Model.AttributePagedResponse.Data.Count() != 0)
+        {
+        <!--Pagination Section-->
+        <div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+                        <form asp-action="Index" asp-controller="Attribute">
+
+                            <div style="float:right">
+                            <select class="form-select" onchange="this.form.submit()" name="PageSize" style="width:Auto; display:inline-block;" id="PageSize">
+                                        <option value="@Model.AttributePagedResponse.PageSize">@Model.AttributePagedResponse.PageSize</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                    <div style="display:inline-block;">
+
+                                    <ul class="pagination">
+
+                                        <li class="page-item"><a class="page-link" asp-action="Index"
+                                                asp-controller="Attribute" asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@(1)"><i
+                                                    class="bi bi-chevron-double-left"></i></a></li>
+                                        @if (Model.AttributePagedResponse.PreviousPage != null)
+                                            {
+                                            <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Attribute"
+                                                    asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@((Model.AttributePagedResponse.PageNumber <= 1 ? 1 : Model.AttributePagedResponse.PageNumber-1))"><i
+                                                    class="bi bi-chevron-left"></i></a></li>    
+                                            }
+                                            @if (Model.AttributePagedResponse.NextPage != null)
+                                            {
+                                                <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Attribute"
+                                                asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@((Model.AttributePagedResponse.PageNumber == @Model.AttributePagedResponse.TotalPages ? @Model.AttributePagedResponse.TotalPages : Model.AttributePagedResponse.PageNumber+1))"><i
+                                                    class="bi bi-chevron-right"></i></a></li>
+                                            }
+
+                                    
+
+                                        <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Attribute"
+                                                    asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@(@Model.AttributePagedResponse.TotalPages)"><i
+                                                    class="bi bi-chevron-double-right"></i></a></li>
+                                    </ul>
+                                    </div>
+                                        <p class="lh-lg" style="display:inline-block; margin-left:25px">
+                                    Страница
+                                    @Model.AttributePagedResponse.PageNumber
+                                    из
+                                    @Model.AttributePagedResponse.TotalPages
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Pagination Section END-->            
+        }
+        </div>
+    </div>
+</form>
+
+<!--Modal Windows Section-->
+<div id="modDialog" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div id="dialogContent" class="modal-dialog modal-lg"></div>
+</div>
+<div id="modDialog1" class="modal fade" tabindex="-1" aria-hidden="true" aria-labelledby="DeleteSupplierLabel1">
+    <div id="dialogContent1" class="modal-dialog"></div>
+</div>
+<!--Modal Windows Section END-->
+
+
+
+<!--Scripts Section-->
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+@section scripts {
+    <script type="text/javascript">
+     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+              return new bootstrap.Tooltip(tooltipTriggerEl)
+            })    
+        $(function () {
+        $.ajaxSetup({ cache: false });
+        $(".compItem").click(function (e) {
+ 
+            e.preventDefault();
+            $.get(this.href, function (data) {
+                $('#dialogContent').html(data);
+                $('#modDialog').modal('show');
+                });
+            });
+        })
+
+        $(function () {
+        $.ajaxSetup({ cache: false });
+        $(".compItem1").click(function (e) {
+ 
+            e.preventDefault();
+            $.get(this.href, function (data) {
+                $('#dialogContent1').html(data);
+                $('#modDialog1').modal('show');
+                });
+            });
+        })
+
+    </script>
+}
+<!--Scripts Section END-->

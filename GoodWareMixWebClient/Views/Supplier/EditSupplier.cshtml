@@ -1,0 +1,1164 @@
+﻿@using GoodWareMixWebClient.Model
+
+@model ProFileSupplier
+
+@{
+	if (@Model.Id == null) {ViewData["Title"] = "Добавление поставщика";}
+	else {ViewData["Title"] = "Редактирование поставщика";}
+}
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+@*	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+*@	<link href="~/css/bootstrap.min.css" rel="stylesheet">
+	<link href="~/css/app.css" rel="stylesheet">
+	<link href="~/css/icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">   
+</head>
+
+<style>
+	body .ui-autocomplete {
+		background-color: #333c47;
+		color: white;
+		word-wrap: break-word;
+		/*max-width: auto;*/
+		max-height:250;
+		overflow-y: auto;
+		overflow-x: hidden;
+		/* font-family to all */
+		}
+		.form-select option {
+			width: 315px;
+			word-wrap:break-word
+		}
+</style>
+
+<div class="page-wrapper">
+	<div class="page-content">
+		@if (@Model.Id == null) {<h4>Добавление поставщика</h4>}
+		else {<h4>Редактирование поставщика @Model.SupplierName</h4>}
+			
+		<form asp-action="UpdateSupplierInBase" asp-controller="Supplier" asp-area="" method="post">
+            <input hidden asp-for="Id" value=@Model.Id/>
+            <input hidden asp-for="SupplierName" value=@Model.SupplierName/>
+
+
+				<div class="row">
+					<div class="col">
+							
+
+						<div class="dropdown">
+							<div class="input-group">
+								<input type="file" class="form-control" id="inputGroupFile04"
+									   aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="file"
+									   onclick="readFile(this);">
+
+									<button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="true">Руководства</button>
+									<ul class="dropdown-menu " style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 38px);" data-popper-placement="bottom-start">
+										<li>
+											<button class="btn btn-primary dropdown-item" type="button" data-bs-toggle="collapse" data-bs-target="#xmlHelperNote" aria-expanded="false" aria-controls="xmlHelperNote">
+												<div class="row"><div class="col">XML</div><div class="col"></div></div>
+											</button>
+										</li>
+										<li>
+											<button class="btn btn-primary dropdown-item" type="button" data-bs-toggle="collapse" data-bs-target="#jsonHelperNote" aria-expanded="false" aria-controls="jsonHelperNote">
+												<div class="row"><div class="col">JSON</div><div class="col"></div></div>
+											</button>
+										</li>
+										<li>
+											<button class="btn btn-success  dropdown-item" type="button" data-bs-toggle="collapse" data-bs-target="#excelHelperNote" aria-expanded="false" aria-controls="excelHelperNote">
+												<div class="row"><div class="col">EXCEL</div><div class="col"></div></div>
+											</button>
+										</li>
+									</ul>
+								
+							</div>
+						</div>
+
+						<div class="form-floating"
+							 style="margin-top:5px; width:auto; height:auto; max-height:600px;  overflow:auto;">
+							<table id="TableData"></table>
+						</div>
+
+						<div id="HelperGroup">
+
+							<div style="margin-top:20px">
+								<div class="collapse" data-bs-parent="#HelperGroup" id="xmlHelperNote">
+								  <div class="card card-body">
+									  <div class="row">
+										<div class="col-10">
+										  <h5>Руководство для файла типа «XML»</h5>
+										 </div>
+										 <div class="col-2">
+											<button class="btn btn-link btn-sm" type="button" style="float:right;width:fit-content; color:red" data-bs-toggle="collapse" aria-expanded="false" aria-controls="xmlHelperNote" data-bs-target="#xmlHelperNote"><i class="bi bi-x"></i></button>
+										</div>
+									  </div>
+									 
+									<iframe src="~/guides/XMLGuide.html#toolbar=0&zoom=100" width="100%" height="600" ></iframe>
+								  </div>
+								</div>
+								<div class="collapse" data-bs-parent="#HelperGroup" id="jsonHelperNote">
+
+								  <div class="card card-body">
+									  <div class="row">
+										<div class="col-10">
+										  <h5>Руководство для файла типа «JSON»</h5>
+										 </div>
+										 <div class="col-2">
+											<button class="btn btn-link btn-sm" type="button" style="float:right;width:fit-content; color:red" data-bs-toggle="collapse" aria-expanded="false" aria-controls="jsonHelperNote" data-bs-target="#jsonHelperNote"><i class="bi bi-x"></i></button>
+										 </div>
+									  </div>
+											
+									<iframe src="~/guides/JSONGuide.html#toolbar=0&zoom=100" width="100%" height="600" ></iframe>
+								  </div>
+								</div>
+								<div class="collapse" data-bs-parent="#HelperGroup" id="excelHelperNote">
+								  <div class="card card-body">
+									  <div class="row">
+										  <div class="col-10">
+											  <h5>Руководство для файлов типа «EXCEL»</h5>
+										  </div>
+										  <div class="col-2">
+											<button class="btn btn-link btn-sm" type="button" style="float:right;width:fit-content; color:red" data-bs-toggle="collapse" aria-expanded="false" aria-controls="jsonHelperNote" data-bs-target="#jsonHelperNote"><i class="bi bi-x"></i></button>
+										</div>
+									  </div>
+
+									<iframe src="~/guides/EXCELGuide.html#toolbar=0&zoom=100" width="100%" height="600" ></iframe>
+								  </div>
+								</div>
+							</div>
+							
+						</div>
+
+					</div>
+
+
+					<div class="col-7">
+
+						<div class="accordion " id="MainAccordion" >
+							<!--Подключение-->
+							<div class="accordion-item" >
+
+								<h2 class="accordion-header" id="headingOne">
+									<button class="accordion-button collapsed fw-bold" type="button"
+											data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false"
+											aria-controls="collapseOne">
+										Подключение
+									</button>
+								</h2>
+
+								<div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+									 data-bs-parent="#MainAccordion">
+
+									<div class="accordion-body" >
+
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+												<div class="col-3">
+
+													Источник
+												</div>
+												<div class="col-9">
+													<select class="form-select" id="Source" name="Source" asp-for="Source" required>
+														<option value="">Выберите тип запроса</option>
+														<option value="API">API</option>
+														<option value="FTP">FTP</option>
+														<option value="MAIL">MAIL</option>
+													</select>
+												</div>
+											</div>
+
+										<div style="margin-top:5px">
+											<div id="DivUrl" class="row" style="font-size:15px">
+												<div class=col-3>
+													Url
+												</div>
+												<div class="col-9">
+													<input placeholder="Ссылка на файл / API" type="text"
+														   class="form-control" name="Url" id="Url"
+														   asp-for="SourceSettings.Url" style="width: 100%;">
+												</div>
+											</div>
+
+											<div class="row" style="font-size:15px; margin-top:5px">
+												<div class="col-3">
+
+													Тип запроса
+												</div>
+												<div class="col-9">
+													<select type="text" class="form-select" name="MethodType"
+															id="MethodType" asp-for="SourceSettings.MethodType"
+															style="width: 100%;" required>
+														<option value="">Выберите тип запроса</option>
+														<option value="GET">GET</option>
+														<option value="POST">POST</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="row" style="font-size:15px; margin-top:5px">
+												<div class="col-3">
+
+													Тип файла
+												</div>
+												<div class="col-9">
+													<select type="text" class="form-select" name="Type" id="Type"
+															asp-for="Type" style="width: 100%;" required>
+														<option value="">Выберите формат файла</option>
+														<option value="JSON">JSON</option>
+														<option value="XML">XML</option>
+														<option value="XLSX">XLSX</option>
+														<option value="CSV">CSV</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="row" style="font-size:15px; margin-top:5px">
+												<div class="col-3">
+
+													Кодировка файла 
+												</div>
+												<div class="col-9">
+													<input placeholder="UTF-8 (По умолчанию)" type="text"
+														   class="form-control" name="FileEncoding" id="FileEncoding"
+														   asp-for="SourceSettings.FileEncoding" style="width: 100%;" />
+												</div>
+											</div>
+
+											<div class="row" style="font-size:15px; margin-top:5px">
+												<div class="col-3">
+
+													Стартовая страница
+												</div>
+												<div class="col-9">
+													<input placeholder="По умолчанию 0" type="text"
+														   class="form-control" name="StartPage" id="StartPage"
+														   asp-for="SourceSettings.StartPage" style="width: 100%;" />
+												</div>
+											</div>
+
+											<div class="row" style="font-size:15px; margin-top:5px">
+												<div class="col-3">
+
+													Кол-во записей на странице
+												</div>
+												<div class="col-9">
+													<input placeholder="Если есть постраничное ограничение" type="text"
+														   class="form-control" name="CountPage" id="CountPage"
+														   asp-for="SourceSettings.CountPage" style="width: 100%;" />
+												</div>
+											</div>
+
+											<div class="row" style="font-size:15px; margin-top:5px">
+												<div class="col-3">
+
+													Header запроса
+												</div>
+												<div class="col-9">
+													<input data-bs-toggle="tooltip" data-bs-placement="right" placeholder='[{"HeaderName": "...", "HeaderValue": "..."}]' title='например: [{"HeaderName": "Authorization", "HeaderValue": "ключ"}, {...}]' type="text" class="form-control" name="Header"
+															id="Header" asp-for="SourceSettings.Header" style="width: 100%;">
+												</div>
+											</div>
+
+											<div id="DivBody" class="row" style="font-size:15px; margin-top:5px">
+												<div class="col-3">
+													Body запроса
+												</div>
+
+												<div class="col-9">
+													<input placeholder="См. API поставщика" type="text" class="form-control" name="Body" id="Body"
+														   asp-for="SourceSettings.Body" style="width: 100%;">
+												</div>
+											</div>
+
+
+										</div>
+
+
+
+									</div>
+								</div>
+							</div>
+							<!--Подключение END-->
+							<!--Сопоставление-->
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="headingTwelwe">
+									<button class="accordion-button collapsed fw-bold" type="button"
+											data-bs-toggle="collapse" data-bs-target="#collapseTwelwe" aria-expanded="false"
+											aria-controls="collapseTwelwe">
+										Сопоставление по коду поставщика
+									</button>
+								</h2>
+								<div id="collapseTwelwe" class="accordion-collapse collapse"
+									 aria-labelledby="headingTwelwe" data-bs-parent="#MainAccordion">
+									<div class="accordion-body">
+
+										<div id="DivBody" style="margin-top:5px">
+											<div class="row">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Вендор ID
+												</div>
+												<div class="col-9">
+													<input placeholder="Код потавщика (Артикль без префикса)" type="text"  name="VendorId" id="VendorId"
+														   asp-for="SupplierConfigs.VendorId" class="form-control"  />
+												</div>
+											</div>
+
+											<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap;">
+													Проверка Вендор ID
+												</div>
+												<div class="col-9">
+
+													<div class="input-group mb-3">
+														<input id="PrefixValue" type="text"
+															   placeholder="Введите артикль без префикса для проверки" class="form-control" />
+														<div class="input-group-append">
+															<button type="button" onclick="PrefixSearch()"
+																	class="btn btn-primary">
+
+																<i class="bi bi-search"></i>
+															
+															</button>
+														</div>
+													</div>
+												</div>
+
+
+											</div>
+
+											<div class="row">
+												<div class="col-3">
+													Префикс
+												</div>
+												<div class="col-9">
+													<input type="text" class="form-control" name="Prefix" id="Prefix"
+														   asp-for="SourceSettings.Prefix" style="width: 100%;"  />
+												</div>
+											</div>
+
+										</div>
+
+
+
+
+
+									</div>
+								</div>
+							</div>
+							<!--Сопоставление END-->
+							<!--Основное-->
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="headingTwo">
+									<button class="accordion-button collapsed fw-bold" type="button"
+											data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false"
+											aria-controls="collapseTwo">
+										Товар
+									</button>
+								</h2>
+								<div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+									 data-bs-parent="#MainAccordion">
+									<div class="accordion-body">
+
+										
+											<div class="row" style="font-size:15px">
+												<div class="col-3" style="flex-wrap:wrap">
+													Основной каталог
+												</div>
+												<div class="col-9">
+													<input type="text" name="Input" id="Input"
+														   asp-for="SupplierConfigs.Input" class="form-control" />
+													<span data-bs-toggle="tooltip" data-bs-placement="right" title="например - XML: <offer> / JSON: data"></span>
+												</div>
+											</div>
+										
+
+
+
+
+											<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Название
+												</div>
+												<div class="col-9">
+													<input type="text" name="Title" id="Title"
+														   asp-for="SupplierConfigs.Title" class="form-control">
+												</div>
+											</div>
+
+											<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap">
+													Полное название
+												</div>
+												<div class="col-9">
+													<input type="text" name="TitleLong" id="TitleLong"
+														   asp-for="SupplierConfigs.TitleLong" class="form-control"
+														   style="height:auto%">
+
+												</div>
+											</div>
+
+											<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Описание
+												</div>
+												<div class="col-9">
+													<input type="text" name="Description" id="Description"
+														   asp-for="SupplierConfigs.Description" class="form-control"
+														   style="height:100%">
+
+												</div>
+											</div>
+
+											<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Вендор
+												</div>
+												<div class="col-9">
+													<input type="text" name="Vendor" id="Vendor"
+														   asp-for="SupplierConfigs.Vendor" class="form-control">
+
+												</div>
+											</div>
+
+
+
+											<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Фото URL
+												</div>
+												<div class="col-9">
+													<input type="text" name="ImageConfig.ImageUrl" id="ImageConfig.ImageUrl"
+														   asp-for="SupplierConfigs.ImageConfig.ImageUrl" class="form-control"
+														   style="height:100%">
+
+												</div>
+											</div>
+
+											<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Каталог фото URL
+												</div>
+												<div class="col-9">
+													<input type="text" name="ImageConfig.ImageInput" id="ImageConfig.ImageInput"
+														   asp-for="SupplierConfigs.ImageConfig.ImageInput" class="form-control"
+														   style="height:100%">
+
+												</div>
+											</div>
+
+											<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Фото
+												</div>
+												<div class="col-9">
+													<input type="text" name="Images" id="Images"
+														   asp-for="SupplierConfigs.Images" class="form-control"
+														   style="height:100%">
+
+												</div>
+											</div>
+
+											<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Фото 360
+												</div>
+												<div class="col-9">
+													<input type="text" name="Image360" id="Image360"
+														   asp-for="SupplierConfigs.Image360" class="form-control"
+														   style="height:100%">
+
+												</div>
+											</div>
+
+											@*<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Видео
+												</div>
+												<div class="col-9">
+													<input type="text" name="Videos" id="Videos"
+														   asp-for="SupplierConfigs.Videos" class="form-control"
+														   style="height:100%">
+
+												</div>
+											</div>*@
+
+										<div class="row" style="margin-top:5px">
+												<div class="col-3" style="flex-wrap:wrap; line-height:35px">
+													Особенности
+												</div>
+												<div class="col-9">
+													<input type="text" name="Features" id="Features"
+														   asp-for="SupplierConfigs.Features" class="form-control"
+														   style="height:100%">
+
+												</div>
+											</div>
+									</div>
+								</div>
+							</div>
+							<!--Основное END-->
+							<!--Аттрибуты-->
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="headingFive">
+									<button class="accordion-button collapsed fw-bold" type="button"
+											data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false"
+											aria-controls="collapseFive">
+										Аттрибуты
+									</button>
+								</h2>
+								<div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
+									 data-bs-parent="#MainAccordion">
+									<div class="accordion-body">
+
+
+										<div class="row" style="margin-top:5px">
+												<div class="col-3">
+													Ссылка на аттрибуты
+												</div>
+												<div class="col-9">
+													<input  placeholder="Необязательное поле" type="text" name="AttributesURL" id="AttributesURL"
+														   asp-for="SupplierConfigs.AttributesURL" class="form-control">
+												</div>
+											</div>
+
+										<div class="row" style="margin-top:5px">
+												<div class="col-3">
+													Каталог аттрибутов URL
+												</div>
+												<div class="col-9">
+													<input  placeholder="Необязательное поле" type="text" name="AttributesParam.AttributesInputURL" id="AttributesParam.AttributesInputURL"
+														   asp-for="SupplierConfigs.AttributesParam.AttributesInputURL" class="form-control">
+												</div>
+											</div>
+
+										<div class="row" style="margin-top:5px">
+												<div class="col-3">
+													Каталог аттрибутов
+												</div>
+												<div class="col-9">
+													<input data-bs-toggle="tooltip" data-bs-placement="right" title="например: XML - param / JSON - characteristics/characteristic" type="text" name="AttributesStart" id="AttributesStart"
+														   asp-for="SupplierConfigs.AttributesStart" class="form-control">
+												</div>
+											</div>
+
+										
+
+										<hr />
+
+										<div class="row" style="margin-top:5px">
+												<div class="col-3">
+													Название
+												</div>
+												<div class="col-9">
+													<input data-bs-toggle="tooltip" data-bs-placement="right" title="например: XML - &commat;name / JSON - name" type="text" name="AttributesParam.NameAttribute" id="AttributesParam.NameAttribute"
+														   asp-for="SupplierConfigs.AttributesParam.NameAttribute" class="form-control">
+												</div>
+											</div>
+
+										<div class="row" style="margin-top:5px">
+												<div class="col-3">
+													Единица измерения
+												</div>
+												<div class="col-9">
+													<input data-bs-toggle="tooltip" data-bs-placement="right" title="например: XML - &commat;unit / JSON - unit" type="text" name="AttributesParam.Unit" id="AttributesParam.Unit"
+														   asp-for="SupplierConfigs.AttributesParam.Unit" class="form-control">
+												</div>
+											</div>
+
+										<div class="row" style="margin-top:5px">
+												<div class="col-3">
+													Тип
+												</div>
+												<div class="col-9">
+													<input data-bs-toggle="tooltip" data-bs-placement="right" title="например: XML - &commat;type / JSON - type" type="text" name="AttributesParam.Type" id="AttributesParam.Type"
+														   asp-for="SupplierConfigs.AttributesParam.Type" class="form-control">
+												</div>
+											</div>
+
+										<div class="row" style="margin-top:5px">
+												<div class="col-3">
+													Значение
+												</div>
+												<div class="col-9">
+													<input data-bs-toggle="tooltip" data-bs-placement="right" title="например: XML - &commat;value, param / JSON - param" type="text" name="AttributesParam.Value" id="AttributesParam.Value"
+														   asp-for="SupplierConfigs.AttributesParam.Value" class="form-control">
+												</div>
+											</div>
+
+
+									</div>
+								</div>
+							</div>
+							<!--Аттрибуты END-->
+							<!--Документы-->
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="headingSix">
+									<button class="accordion-button collapsed fw-bold" type="button"
+											data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false"
+											aria-controls="collapseSix">
+										Документы
+									</button>
+								</h2>
+								<div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix"
+									 data-bs-parent="#MainAccordion">
+									<div class="accordion-body">
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												URL документов
+											</div>
+											<div class="col-9">
+												<input type="text" name="DocumentsURL" id="DocumentsURL"
+												   class="form-control" asp-for="SupplierConfigs.DocumentsURL"
+												   style="width: 100%;">
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Каталог документов
+											</div>
+											<div class="col-9">
+												<input type="text" name="DocumentsStart" id="DocumentsStart"
+												   class="form-control" asp-for="SupplierConfigs.DocumentsStart"
+												   style="width: 100%;">
+											</div>
+										</div>
+
+										<hr />
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Тип
+											</div>
+											<div class="col-9">
+												<input type="text" name="Documents.Type" id="Documents.Type"
+												   class="form-control" asp-for="SupplierConfigs.Documents.Type"
+												   style="width: 100%;">
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Ссылка
+											</div>
+											<div class="col-9">
+												<input type="text" name="Documents.Url" id="Documents.Url"
+												   class="form-control" asp-for="SupplierConfigs.Documents.Url"
+												   style="width: 100%;">
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Сертификат ID
+											</div>
+											<div class="col-9">
+												<input type="text" name="Documents.CertId" id="Documents.CertId"
+												   class="form-control" asp-for="SupplierConfigs.Documents.CertId"
+												   style="width: 100%;">
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Сертификат номер
+											</div>
+											<div class="col-9">
+												<input type="text" name="Documents.CertNumber" id="Documents.CertNumber"
+												   class="form-control" asp-for="SupplierConfigs.Documents.CertNumber"
+												   style="width: 100%;">
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Дата начала
+											</div>
+											<div class="col-9">
+												<input type="text" name="Documents.StartDate" id="Documents.StartDate"
+												   class="form-control" asp-for="SupplierConfigs.Documents.StartDate"
+												   style="width: 100%;">
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Дата окончания
+											</div>
+											<div class="col-9">
+												<input type="text" name="Documents.EndDate" id="Documents.EndDate"
+												   class="form-control" asp-for="SupplierConfigs.Documents.EndDate"
+												   style="width: 100%;">
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+							<!--Документы END-->
+							<!--Упаковка-->
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="headingNine">
+									<button class="accordion-button collapsed fw-bold" type="button"
+											data-bs-toggle="collapse" data-bs-target="#collapseNine" aria-expanded="false"
+											aria-controls="collapseNine">
+										Упаковка
+									</button>
+								</h2>
+								<div id="collapseNine" class="accordion-collapse collapse" aria-labelledby="headingNine"
+									 data-bs-parent="#MainAccordion">
+									<div class="accordion-body">
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Каталог упаковки
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="PackagesStart"
+														id="PackagesStart" asp-for="SupplierConfigs.PackagesStart"
+														style="width: 100%;" />
+											</div>
+										</div>
+
+										<hr />
+
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Штрихкод
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="Packages.Barcode"
+														id="Packages.Barcode" asp-for="SupplierConfigs.Packages.Barcode"
+														style="width: 100%;" />
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Высота
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="Packages.Height"
+														id="Packages.Height" asp-for="SupplierConfigs.Packages.Height"
+														style="width: 100%;" />
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Ширина
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="Packages.Width"
+														id="Packages.Width" asp-for="SupplierConfigs.Packages.Width"
+														style="width: 100%;" />
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Длина
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="Packages.Length"
+														id="Packages.Length" asp-for="SupplierConfigs.Packages.Length"
+														style="width: 100%;" />
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Глубина
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="Packages.Depth"
+														id="Packages.Depth" asp-for="SupplierConfigs.Packages.Depth"
+														style="width: 100%;" />
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Вес
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="Packages.Weight"
+														id="Packages.Weight" asp-for="SupplierConfigs.Packages.Weight"
+														style="width: 100%;" />
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Объём
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="Packages.Volume"
+														id="Packages.Volume" asp-for="SupplierConfigs.Packages.Volume"
+														style="width: 100%;" />
+											</div>
+										</div>
+									
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Кол-во в упаковке
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="Packages.PackQty"
+														id="Packages.PackQty" asp-for="SupplierConfigs.Packages.PackQty"
+														style="width: 100%;" />
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+							<!--Упаковка END-->
+							<!--Категория-->
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="headingThree">
+									<button class="accordion-button collapsed fw-bold" type="button"
+											data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false"
+											aria-controls="collapseThree">
+										Категория
+									</button>
+								</h2>
+								<div id="collapseThree" class="accordion-collapse collapse"
+									 aria-labelledby="headingThree" data-bs-parent="#MainAccordion">
+									<div class="accordion-body">
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Каталог категории
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control" name="CategoriesProduct"
+														id="CategoriesProduct" asp-for="SupplierConfigs.CategoriesProduct" style="width: 100%;">
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Категория
+											</div>
+											<div class="col-9">
+												<input class="form-control" list="datalistDoc" />
+												<datalist id="datalistDoc">
+													<option value="type">Тип</option>
+													<option value="link">Ссылка</option>
+												</datalist>
+											</div>
+										</div>
+
+										<hr />
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Каталог подкатегории
+											</div>
+											<div class="col-9">
+												<input type="text" class="form-control"
+												   asp-for="SupplierConfigs.CategoriesStart" style="width: 100%;">
+											</div>
+										</div>
+
+										<div class="row" style="font-size:15px; margin-top:5px">
+											<div class="col-3">
+												Подкатегория
+											</div>
+											<div class="col-9">
+												<input class="form-control" list="datalistDoc" />
+												<datalist id="datalistDoc">
+													<option value="type">Тип</option>
+													<option value="link">Ссылка</option>
+												</datalist>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+							<!--Категория END-->
+							<!--Словарь-->
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="headingEight">
+									<button class="accordion-button collapsed fw-bold" type="button"
+											data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false"
+											aria-controls="collapseEight">
+										Словарь
+									</button>
+								</h2>
+								<div id="collapseEight" class="accordion-collapse collapse"
+									 aria-labelledby="headingEight" data-bs-parent="#MainAccordion">
+									<div class="accordion-body">
+
+										<table class="table">
+											<thead>
+												<tr>
+													<th class="col-5" style="resize:none">Поставщик</th>
+													<th class="col-5">База данных</th>
+													<th class="col-2">
+														
+														<button onclick="Test()" type="button" class="btn btn-light btn-sm bi bi-plus" style="width: 45px;">
+														</button>
+													</th>
+												</tr>
+											</thead>
+											<tbody id="TbodyAttribute">
+												<!-- var attrKey in (Model.SupplierConfigs.productAttributeKeys == null ? new List<ProductAttributeKey>() : Model.SupplierConfigs.productAttributeKeys )  -->
+												@if (Model.SupplierConfigs != null){
+													if (Model.SupplierConfigs.productAttributeKeys == null) { }
+													else
+													{
+														foreach (var attrKey in Model.SupplierConfigs.productAttributeKeys)
+														{
+															<tr>
+																<td><input type="text" class="form-control" value="@attrKey.KeySupplier" readonly/></td>
+																<td><input type="text" class="form-control" value="@attrKey.AttributeBDName" readonly/></td>
+																<td><button class="btn btn-danger bi bi-x-lg"></button></td>
+															</tr>
+														}
+													}
+												}
+												
+
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+							<!--Словарь END-->
+							<hr />
+							<span asp-validation-for="SourceSettings.Url"/>
+							<button type="submit" class="btn btn-hover-alt btn-success" style="width:100%">Сохранить</button>
+						</div>
+
+					</div>
+				</div>
+@*			</div>
+*@
+            
+        </form>
+
+	</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
+
+  <script > 
+	  jQuery.ui.autocomplete.prototype._resizeMenu = function () {
+	  var ul = this.menu.element;
+	  ul.outerWidth(this.element.outerWidth());
+	}
+
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+              return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+
+    function PrefixSearch() {
+            var VendorId = document.getElementById('VendorId').value;
+         $.ajax({
+        type: "GET",
+        url: "@Url.Action("PrefixSearch")",
+        data: {code: VendorId},
+       //contentType: "application/json; charset=utf-8",
+        dataType: "text",
+        success: function (msg) {
+            document.getElementById('Prefix').value = msg;
+        },
+        error: function (req, status, error) {
+            alert(error);
+        }
+    }); 
+     }
+    
+
+
+        if(document.getElementById('MethodType').value == "POST")
+        {
+            var DivBody = document.getElementById('DivBody');
+             DivBody.style= "visibility: visible; font-size:15px; margin-top:5px;";
+
+        }
+        else
+        {
+             var DivBody = document.getElementById('DivBody');
+             DivBody.style= "display: none; font-size:15px; margin-top:5px;";
+
+        }
+
+
+
+    document.getElementById('MethodType').addEventListener('change', function (e) {
+
+        if(e.target.value == "POST")
+        {
+            var DivBody = document.getElementById('DivBody');
+             DivBody.style= "visibility: visible; font-size:15px; margin-top:5px;";
+            //console.log("Changed to: " + e.target.value)
+        }
+        else
+        {
+             var DivBody = document.getElementById('DivBody');
+             DivBody.style= "display: none; font-size:15px; margin-top:5px;";
+             //console.log("Changed to: " + e.target.value)
+        }
+ 
+});
+
+
+
+
+ function GetNameAttribute(value){
+  let arr = [];
+  $.ajax({
+        type: "GET",
+        url: "@Url.Action("GetAttribute")",
+        data: {Search: value},
+       //contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (msg) {
+            for(let i = 0; i < msg.data.length;i++)
+            {
+
+                console.log(msg.data[i].nameAttribute);
+                arr.push(msg.data[i].nameAttribute);
+              
+            }
+            console.log("-------------------");
+        },
+        error: function (req, status, error) {
+            alert(error);
+        }
+    }); 
+
+  return arr;
+  }
+
+
+
+   
+
+       function Test() {
+
+         var TbodyAttribute = document.getElementById('TbodyAttribute');
+
+         var TrElement = document.createElement("tr"); // 1 
+
+         var TdElement = document.createElement("td"); // 1.1
+
+         var InputElement1 = document.createElement("input"); // 1.1.1
+
+         InputElement1.type = "text";
+
+         InputElement1.name = "AttributeKey";
+
+         InputElement1.id = "AttributeKey";
+
+         InputElement1.className= "form-control";
+
+         InputElement1.placeholder = "Введите...";
+
+         TdElement.appendChild(InputElement1);
+         TrElement.appendChild(TdElement);
+
+         var TdElement2 = document.createElement("td"); // 1.2
+
+         //var InputdElement2 = document.createElement("input"); // 1.2.1
+
+         //InputdElement2.className= "form-control";
+
+         //InputdElement2.list = "datalistDoc";
+
+         //InputdElement2.name = "Attribute";
+
+         var DatalistElement2 = document.createElement("input"); // 1.2.2
+
+         DatalistElement2.id = "autocomplete";
+
+         DatalistElement2.name = "autocomplete";
+
+         DatalistElement2.className = "form-control";
+
+
+
+           DatalistElement2.oninput = function() {
+       $(DatalistElement2).autocomplete({ source: GetNameAttribute(DatalistElement2.value)});
+       $(DatalistElement2).autocomplete({
+        response: function( event, ui ) {
+        for ( var i = 0; i<ui.content.length; i++ ) {
+             
+            console.log(ui.content[i].value);
+         
+                 }
+           console.log("************");
+                 }
+           });
+
+           };
+
+
+  
+       TdElement2.style.maxWidth = 10;
+       //TdElement2.appendChild(InputdElement2);
+       TdElement2.appendChild(DatalistElement2);
+       TrElement.appendChild(TdElement2);
+
+       var TdElement3 = document.createElement("td"); // 1.3
+
+       var ButtonElement3 = document.createElement("button"); // 1.3.1
+
+       ButtonElement3.className= "btn btn-danger";
+
+       ButtonElement3.type = "button";
+
+       ButtonElement3.style = "width: 45px;";
+
+       var IElement = document.createElement("i");
+       IElement.className= "bi bi-x";
+
+       ButtonElement3.appendChild(IElement);
+
+       
+
+       ButtonElement3.onclick = function () { 
+           TrElement.remove();
+       };
+
+       TdElement3.appendChild(ButtonElement3);
+
+       TrElement.appendChild(TdElement3);
+
+       TbodyAttribute.appendChild(TrElement);
+       }
+
+
+
+
+function readFile(input) {
+ let file = input.files[0];
+
+ let reader = new FileReader();
+
+ reader.readAsText(file);
+
+ reader.onload = function() {
+     var array = reader.result.toString().split("\n");
+     let resultStringText = "";
+     for(let i = 0; i<=15000;i++){
+         resultStringText = resultStringText + array[i] + "\n";
+     }
+
+     document.getElementById('floatingTextarea2').innerHTML = resultStringText;
+   console.log(reader.result);
+    
+ };
+}
+
+</script>

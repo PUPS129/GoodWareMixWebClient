@@ -1,0 +1,194 @@
+﻿@using MongoDB.Bson
+@using Newtonsoft.Json
+@using GoodWareMixWebClient.Model
+
+@model AttributeEntity
+<head>
+	<link href="~/css/bootstrap.min.css" rel="stylesheet">
+	<link href="~/css/app.css" rel="stylesheet">
+	<link href="~/css/icons.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">   
+</head>
+
+<style>
+	body .ui-autocomplete {
+		background-color: #333c47;
+		color: white;
+		word-wrap: break-word;
+		max-height:450px;
+		overflow-y: auto;
+		overflow-x: hidden;
+		/* font-family to all */
+		}
+
+</style>
+
+<!--Modal Window Section-->
+<div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content bg-dark">
+        <div class="modal-header">
+            <h5 class="modal-title" >Редактирование «<label id="NameAttribute">@Model.NameAttribute</label>»</h5> <br />
+            <button class="btn-close" data-dismiss="modal" aria-label="Close" area-hidden="true"></button>
+        </div>
+        <div class="modal-body ui-front">
+                    
+            <div class="row">
+                <div class="col">
+                    <h5>Рейтинг @Model.Rating </h5>
+                </div>
+@*                <div class="col">
+                    <button class="btn btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" style="float:right">
+                        Возможные значения
+                    </button>
+                </div>        *@            
+            </div>
+
+            <form asp-action="SaveEditChanges" asp-controller="Attribute" method="get">
+                <input hidden asp-for="NameAttribute" id="NameAttribute" value="@Model.Id"/>
+                <div class="collapse" id="collapseExample" style="margin-top:15px">
+                    <div class="card card-body">
+                        <ul class="list-group">
+                            @foreach (var item in (Model.PossibleAttributeName == null ? new List<string>() : Model.PossibleAttributeName))
+                            {
+                                <li class="list-group-item ">@item</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <hr />
+
+                <div class="input-group mb-3" style="margin-top:15px">
+                    <input list="DataListAttribute" size="1" id="autocomplete" class="form-control" placeholder="Введите название аттрибута" />
+                    <button onclick="addFilter()" class="btn btn-outline-secondary" type="button" id="button-addon2"><i class="bi bi-plus-lg"></i></button>
+                </div>
+
+                <div id="Test111"></div>
+                <button class="btn btn-light" type="submit">Добавить</button>
+            </form>
+        </div>
+    </div>
+</div>
+<!--Modal Window Section END-->
+
+
+<!--Script Section-->
+
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
+
+<script>
+
+    jQuery.ui.autocomplete.prototype._resizeMenu = function () {
+	  var ul = this.menu.element;
+	  ul.outerWidth(this.element.outerWidth());
+	}
+
+    function addFilter() {
+         if (document.getElementById('autocomplete').value != "" && arr1.includes(document.getElementById('autocomplete').value) )
+         {
+             var TbodyAttribute = document.getElementById('Test111');
+             var TrElement = document.createElement("div"); // 1 
+             TrElement.className = "input-group mb-3";
+             var TdElement = document.createElement("td"); // 1.1
+             TrElement.appendChild(TdElement);
+             var TdElement2 = document.createElement("td"); // 1.2
+             //var InputdElement2 = document.createElement("input"); // 1.2.1
+             //InputdElement2.className= "form-control";
+             //InputdElement2.list = "datalistDoc";
+             //InputdElement2.name = "Attribute";
+             var DatalistElement2 = document.createElement("input"); // 1.2.2
+             DatalistElement2.id = "autocomplete";
+             DatalistElement2.name = "autocomplete";
+             DatalistElement2.className = "form-control";
+             DatalistElement2.value = document.getElementById('autocomplete').value;
+         
+             DatalistElement2.readOnly = "true";
+  
+            TrElement.style.width = "100%";
+            //TdElement2.appendChild(InputdElement2);
+            TrElement.appendChild(DatalistElement2);
+            TrElement.appendChild(TdElement2);
+            var TdElement3 = document.createElement("td"); // 1.3
+            var ButtonElement3 = document.createElement("button"); // 1.3.1
+            ButtonElement3.className= "btn btn-danger";
+            ButtonElement3.type = "button";
+            ButtonElement3.style = "width: 45px;";
+            var IElement = document.createElement("i");
+            IElement.className= "bi bi-x";
+            ButtonElement3.appendChild(IElement);
+       
+            ButtonElement3.onclick = function () { 
+                TrElement.remove();
+            };
+            TrElement.appendChild(ButtonElement3);
+            TrElement.appendChild(TdElement3);
+            TbodyAttribute.appendChild(TrElement);   //Test111 
+            document.getElementById('autocomplete').value = ""; 
+         }
+         
+    }
+
+
+    function SaveChanges() {
+                var attr = document.getElementsByTagName('AttributeKey').value;
+             $.ajax({
+            type: "GET",
+            url: "@Url.Action("SaveEditChanges")",
+            data: {attributes: attr},
+            error: function (req, status, error) {
+                alert(error);
+            }
+        }); 
+    }
+          
+        var arr1 = [];
+        function GetNameAttribute() {
+        arr1 = [];
+        let arr = [];
+        var valueinput = document.getElementById('autocomplete').value;
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetAttribute","Product")",
+                data: {Search: valueinput},
+                //contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    for(let i = 0; i < msg.data.length;i++)
+                    {
+
+                        console.log(msg.data[i].nameAttribute);
+                        if (msg.data[i].nameAttribute != document.getElementById('NameAttribute').innerText)
+                        {
+                            arr.push(msg.data[i].nameAttribute);
+                        }
+                
+              
+                    }
+                    console.log("-------------------");
+                },
+                error: function (req, status, error) {
+                    alert(error);
+                }
+            }); 
+            arr1 = arr;
+        return arr;
+    }
+</script>
+
+<script>
+	var input = document.getElementById('autocomplete');
+	input.oninput = function() {
+		$( "#autocomplete" ).autocomplete({ source: GetNameAttribute()});
+		$( "#autocomplete" ).autocomplete({
+			response: function( event, ui ) {
+				for ( var i = 0; i<ui.content.length; i++ ) {
+		
+					console.log(ui.content[i].value);
+					console.log("************");
+				}
+			}
+		});
+	}
+</script>
+
+<!--Script Section END-->

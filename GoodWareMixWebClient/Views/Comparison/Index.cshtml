@@ -1,0 +1,32 @@
+﻿<div class="page-wrapper">
+	<div class="page-content">
+        <h4>Сопоставление внутренних кодов из 1С @Model.SupplierName</h4>
+        <form asp-action="Index" asp-controller="Comparison" enctype="multipart/form-data" asp-route-supplierName="@Model.SupplierName">
+            <div class="container-fluid px-0">
+                <div class="row full-width-row">
+
+                    <div class="input-group">
+                            <input type="file" class="form-control" id="inputGroupFile04"
+                                aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="file" onchange="readFile(this)">
+                            <button class="btn btn-light" id=LoadButton data-loading-text="loading..." type="sumbit" value=Upload>Загрузить</button>
+
+                            @*<button class="btn btn-primary" type="button" disabled>
+                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                           </button>*@
+                        </div>
+            
+
+                
+
+
+                        <div class="form-floating" style="margin-top:5px">
+                            <textarea class="form-control" disabled="true"
+                                id="floatingTextarea2" style="min-height:600px;resize: none">@ViewBag.Result</textarea>
+                        </div>
+
+             
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

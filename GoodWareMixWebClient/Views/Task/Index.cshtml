@@ -1,0 +1,463 @@
+﻿@using GoodWareMixWebClient.Model
+@using GoodWareMixWebClient.ViewModel
+
+@model SchedulerTaskViewModel
+@{
+    ViewData["Title"] = "Задачи";
+}
+<head>
+    <script src="~/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<div class="page-wrapper">
+	<div class="page-content">
+        @if (Model.ProFileSupplier.Id != null){<h4>Задачи @Model.ProFileSupplier.SupplierName</h4>}
+        else {<h4>Задачи</h4>}
+        <div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+                        <form asp-action="Index" asp-controller="Task">
+                            <div class="input-group" style="width:100%; padding:unset; margin:unset">
+							    <input type="text" id="Search" name="Search" class="form-control" placeholder="Введите название задачи" value="@ViewBag.Search"/>
+							    <button class="btn btn-light" style="margin-right:8px" type="submit" id="button-addon2">
+								    <i class="bi bi-search"></i>
+							    </button>
+						    </div>
+                        </form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+            <div class="row">
+			    <div class="col-12">
+				    <div class="card">
+					    <div class="card-body">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                       @* <th> ID </th>*@
+                                        <th> Название </th>
+                                        <th> Описание </th>
+                                        <th> Поставщик </th>
+                                        <th> Дата начала </th>
+                                        <th> Дата след задачи </th>
+                                        <th> Крон </th>
+                                        <th> Статус</th>
+                                        <th>
+                                            <a type="button" class="btn-light btn btn-sm compItem1" style="float:right" data-bs-toggle="tooltip" asp-action="AddEditTaskModal" asp-controller="Task" data-bs-placement="bottom" title="Добавить задачу"
+                                                >Добавить</a>
+                                            <span data-bs-toggle="modal" data-bs-target="#AddNewTaskModal">
+                                                
+                                            </span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.SchedulerTaskPagedResponse.Data.Count() != 0)
+                                    {
+                                        foreach (var task in Model.SchedulerTaskPagedResponse.Data)
+                                        {
+
+                                                <tr >
+                                                    @*<td>@task.Id</td>*@
+                                                    <td>@task.NameTask</td>
+                                                    <td>@task.Description</td>
+                                                    <td>@task.SupplierId</td>
+                                
+                                                    <td>
+                                                        @if(task.StartAt.ToLocalTime().Equals(DateTime.Parse("01.01.0001 5:00:00")))
+                                                        { <strong>Не задана</strong> }
+                                                        else
+                                                        { @task.StartAt.ToLocalTime() }
+                                                    </td>
+                                                    <td>
+                                                        @if(task.NextDateTask.ToLocalTime().Equals(DateTimeOffset.Parse("01.01.0001 5:00:00 +05:00")))
+                                                        { <strong>Не задана</strong> }
+                                                        else
+                                                        { @task.NextDateTask.ToLocalTime() }
+                                                    </td>
+                                                    <td>[@task.CronExpression]</td>
+                                                    <td>
+                                                        @if (task.IsEnable == true)
+                                                        {
+                                                            <div class="d-flex align-items-center text-success">	<i class="bx bx-radio-circle-marked bx-burst bx-rotate-90 align-middle font-18 me-1"></i>
+												                <span>Запущена</span>
+											                </div>
+                                                        }
+                                                        else{<div class="d-flex align-items-center text-danger"><span>Остановлена</span></div>}
+                                                    </td>
+                                                    <td>
+                                                        <div style="float:right">
+                                                            <div class="row row-cols-auto g-2" >
+										                         <div class="col">
+                                                                    @if (task.IsEnable == true)
+                                                                    {
+                                                                        <a class="btn btn-danger btn-hover-alt bx bx-stop" style="height:40px; width:50px; font-size:25px" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Остановить задачу" asp-action="StopTask" asp-controller="Task" asp-route-taskName="@task.NameTask"></a>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a class="btn btn-success btn-hover-alt bx bx-play" style="height:40px; width:50px; font-size:25px" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Запустить задачу" asp-action="StartTask" asp-controller="Task" asp-route-taskName="@task.NameTask"></a>    
+                                                                    }
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <a> @Html.ActionLink("","AddEditTaskModal", new {nameTask = task.NameTask}, new {@class = "compItem btn btn-warning bx bx-pencil bx-sm btn-hover-alt", style="height:40px; width:50px"}) </a>               
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <a data-bs-toggle="tooltip" data-bs-placement="bottom" >@Html.ActionLink("","DeleteTaskModal", new {taskName = task.NameTask}, new {@class = "compItem1 btn btn-danger btn-hover-alt bx bx-trash bx-sm", type="button", style="height:40px; width:50px"})</a>
+                                                                    </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        
+
+ <!--Empty Search Case-->
+        @if (Model.SchedulerTaskPagedResponse.Data.Count() == 0)
+        {
+            <div class="row">
+			    <div class="col-12">
+				    <div class="card">
+					    <div class="card-body" style="text-align:center; display:table; height:600px; line-height:600px;">
+                            <span style="display:table-cell; vertical-align:middle;">
+                                <h2>Ничего не найдено</h2>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <!--Empty Search Case END-->
+
+		@if (Model.SchedulerTaskPagedResponse.Data.Count() != 0)
+        {
+        <!--Pagination Section-->
+        <div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+                        <form asp-action="Index" asp-controller="Task">
+
+                            <div style="float:right">
+                            <select class="form-select" onchange="this.form.submit()" name="PageSize" style="width:Auto; display:inline-block;" id="PageSize">
+                                        <option value="@Model.SchedulerTaskPagedResponse.PageSize">@Model.SchedulerTaskPagedResponse.PageSize</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                    <div style="display:inline-block;">
+
+                                    <ul class="pagination">
+
+                                        <li class="page-item"><a class="page-link" asp-action="Index"
+                                                asp-controller="Task" asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@(1)"><i
+                                                    class="bi bi-chevron-double-left"></i></a></li>
+                                        @if (Model.SchedulerTaskPagedResponse.PreviousPage != null)
+                                            {
+                                            <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Task"
+                                                    asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@((Model.SchedulerTaskPagedResponse.PageNumber <= 1 ? 1 : Model.SchedulerTaskPagedResponse.PageNumber-1))"><i
+                                                    class="bi bi-chevron-left"></i></a></li>    
+                                            }
+                                            @if (Model.SchedulerTaskPagedResponse.NextPage != null)
+                                            {
+                                                <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Task"
+                                                asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@((Model.SchedulerTaskPagedResponse.PageNumber == @Model.SchedulerTaskPagedResponse.TotalPages ? @Model.SchedulerTaskPagedResponse.TotalPages : Model.SchedulerTaskPagedResponse.PageNumber+1))"><i
+                                                    class="bi bi-chevron-right"></i></a></li>
+                                            }
+
+                                    
+
+                                        <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Task"
+                                                    asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@(@Model.SchedulerTaskPagedResponse.TotalPages)"><i
+                                                    class="bi bi-chevron-double-right"></i></a></li>
+                                    </ul>
+                                    </div>
+                                        <p class="lh-lg" style="display:inline-block; margin-left:25px">
+                                    Страница
+                                    @Model.SchedulerTaskPagedResponse.PageNumber
+                                    из
+                                    @Model.SchedulerTaskPagedResponse.TotalPages
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Pagination Section END-->            
+        }
+
+        @*<!--Add Modal-->
+         <form asp-action="AddTaskConfirm" asp-controller="Task" method="post">
+        <div class="modal fade" id="AddNewTaskModal" tabindex="-1" aria-labelledby="AddTaskLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="AddTaskLabel">Добавление задачи</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body ui-front">
+
+                       
+
+                                <div class="container" style="margin-top:5px">
+                                    <div class="row">
+                                        <div class="col-3" style="flex-wrap:wrap; line-height:35px">
+                                            Поставщик *
+                                        </div>
+                                        <div class="col-9">
+                                        <input name="task.Supplier.SupplierName" asp-for="@Model.SchedulerTask.Supplier.SupplierName" id="autocompleteSupplier"  class="form-select" required/>                                       
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <hr />
+
+                                <div class="container" style="margin-top:5px">
+                                        <div class="row">
+                                            <div class="col-3" style="flex-wrap:wrap; line-height:35px" >
+                                                Название *
+                                            </div>
+                                            <div class="col-9">
+                                            <input type="text" name="task.NameTask" id="NameTask" asp-for="@Model.SchedulerTask.NameTask" class="form-control"  required>
+
+                                            </div>
+                                        </div>
+                                </div>
+
+                                <div class="container" style="margin-top:5px">
+                                    <div class="row">
+                                        <div class="col-3" style="flex-wrap:wrap">
+                                            Описание
+                                        </div>
+                                        <div class="col-9">
+                                        <input type="text" name="task.Description" id="Description" asp-for="@Model.SchedulerTask.Description" class="form-control" style="height:auto">
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="container" style="margin-top:5px">
+                                    <div class="row">
+                                        <div class="col-3" style="flex-wrap:wrap; line-height:35px">
+                                            Начало
+                                        </div>
+                                        <div class="col-9">                                                            
+                                             <input type="datetime-local" name="task.StartAt" min="@DateTime.Now.Year-@DateTime.Now.Month.ToString("d2")-@DateTime.Now.Day.ToString("d2")&#84;@DateTime.Now.Hour:@DateTime.Now.Minute" max="@DateTime.Now.AddYears(1).Year-@DateTime.Now.Month.ToString("d2")-@DateTime.Now.Day.ToString("d2")&#84;@DateTime.Now.Hour:@DateTime.Now.Minute" id="StartAt" asp-for="@Model.SchedulerTask.StartAt" class="form-control" style="height:100%">                                       
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="container" style="margin-top:5px">
+                                    <div class="row">
+                                        <div class="col-3" style="flex-wrap:wrap; line-height:35px">
+                                            Cron *
+                                            <a class="link-light" href="~/guides/CronExpressionGuide.html" data-bs-toggle="tooltip" data-bs-placement="bottom" target="_blank" title="Подробнее о Cron">
+                                                (<i class="bx bx-question-mark"></i>)
+                                            </a>
+                                        </div>
+                                        <div class="col-9">
+                                            <input data-bs-toggle="tooltip" data-bs-placement="bottom" title="Для подробностей см. руководство" type="text" name="task.CronExpression" id="CronExpression" asp-for="@Model.SchedulerTask.CronExpression" class="form-control" style="height:100%">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                    <div class="modal-footer">
+                        <button id="SubmitAddFormBtn" class="btn btn-light" type="submit">Сохранить</button>
+                    </div>
+                </div>                
+            </div>
+        </div>
+        </form>
+        <!--Add Modal END-->*@
+    
+    </div>
+</div>
+
+
+<!--Modals Section-->
+    <div id="modDialog" class="modal fade" tabindex="-1" aria-hidden="true" >
+    <div id="dialogContent" class="modal-dialog"></div>
+</div>
+
+<div id="modDialog1" class="modal fade" tabindex="-1" aria-hidden="true" >
+    <div id="dialogContent1" class="modal-dialog"></div>
+</div>
+
+<div id="modDialog2" class="modal fade" tabindex="-1" aria-hidden="true" >
+    <div id="dialogContent2" class="modal-dialog"></div>
+</div>
+<!--Modals Section END-->
+
+<!--Script Section-->
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
+    @section scripts
+    {
+@*        <script>
+		$(function () {
+			$('[data-bs-toggle="tooltip"]').tooltip();
+		})
+	    </script>
+
+        <script>
+        $(document.getElementById('supplierName'))
+          .focusin(function() {
+            document.getElementById('SubmitAddFormBtn').disabled = true;
+          });
+    </script>
+
+        <script>
+
+        jQuery.ui.autocomplete.prototype._resizeMenu = function () {
+	        var ul = this.menu.element;
+	        ul.outerWidth(this.element.outerWidth());
+	    }
+
+        $(document.getElementById('NameTask'))
+          .focusout(function() {
+            
+            var taskNameToCheck = document.getElementById('NameTask').value;
+            $.ajax({
+
+                url: "@Url.Action("GetTask")",
+                type: "GET",
+                data: {NameTask: taskNameToCheck} ,
+                success: function(data) {
+                    //document.getElementById('CheckNameSpinner').style.display = "none";
+                    if (data == 0)
+                    {
+                        document.getElementById('SubmitAddFormBtn').disabled = false;
+                    }
+                    else {
+                        document.getElementById('SubmitAddFormBtn').disabled = true;
+                    }
+                }
+            });
+
+
+          });
+    </script>*@
+
+        <script>
+        
+
+        
+        $(function () {
+        $.ajaxSetup({ cache: false });
+        $(".compItem2").click(function (e) {
+ 
+            e.preventDefault();
+            $.get(this.href, function (data) {
+                $('#dialogContent2').html(data);
+                $('#modDialog2').modal('show');
+                });
+            });
+        })
+    
+
+        $(function () {
+        $.ajaxSetup({ cache: false });
+        $(".compItem1").click(function (e) {
+ 
+            e.preventDefault();
+            $.get(this.href, function (data) {
+                $('#dialogContent1').html(data);
+                $('#modDialog1').modal('show');
+                });
+            });
+        })
+
+        $(function () {
+        $.ajaxSetup({ cache: false });
+        $(".compItem").click(function (e) {
+ 
+            e.preventDefault();
+            $.get(this.href, function (data) {
+                $('#dialogContent').html(data);
+                $('#modDialog').modal('show');
+                });
+            });
+        })
+
+        //var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        //    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        //      return new bootstrap.Tooltip(tooltipTriggerEl)
+        //    })
+
+
+        //function GetSupplierName()
+        //        {
+        //    let arr = [];
+        //    var valueinput = document.getElementById('autocompleteSupplier').value;
+        //        $.ajax({
+        //            type: "GET",
+        //            url: "@Url.Action("GetSupplier","Task")",
+        //            data: {Search: valueinput},
+        //            //contentType: "application/json; charset=utf-8",
+        //            dataType: "json",
+        //            success: function (msg) {
+        //                for(let i = 0; i < msg.data.length;i++)
+        //                {
+
+        //                    console.log(msg.data[i].supplierName);
+        //                    arr.push(msg.data[i].supplierName);
+                            
+        //                }
+        //                console.log("-------------------");
+        //            },
+        //            error: function (req, status, error) {
+        //                alert(error);
+        //            }
+        //        }); 
+
+        //    return arr;
+        //        }
+
+
+
+        //        var input = document.getElementById('autocompleteSupplier');
+
+        //        input.oninput = function() {
+        //    $( "#autocompleteSupplier" ).autocomplete({ source: GetSupplierName()});
+        //    $( "#autocompleteSupplier" ).autocomplete({
+        //        response: function( event, ui ) {
+        //            for ( var i = 0; i<ui.content.length; i++ ) {
+             
+        //                console.log(ui.content[i].value);
+        //                //if (ui.content[i].value == $(this).val()){
+        //                //    this.value = "";
+        //                //}
+        //                console.log("************");
+        //            }
+        //            //if (ui.content.length == 0)
+        //            //{
+        //            //    this.value = "";
+        //            //}
+        //        },
+        //    });
+        //        }
+    </script> 
+    }
+<!--Script Section END-->

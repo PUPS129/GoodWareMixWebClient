@@ -1,0 +1,242 @@
+﻿@using GoodWareMixWebClient.Model
+@model GoodWareMixWebClient.Model.Product
+
+@{
+    if (Model.Title != null)
+    {
+        ViewData["Title"] = $"{Model.Title}";    
+    }
+    List<Document> documents = new List<Document>();
+}
+
+<head>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    @*<link href="~/css/bootstrap.min.css" rel="stylesheet">*@
+	<link href="~/css/app.css" rel="stylesheet">
+</head>
+
+    <!--start page wrapper -->
+		<div class="page-wrapper">
+			<div class="page-content">
+
+				<!--breadcrumb-->
+				<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+					<div class="breadcrumb-title pe-3">О товаре</div>
+					<div class="ps-3">
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb mb-0 p-0">
+								<li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index"><i class="bx bx-home-alt"></i></a>
+								</li>
+								<li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+							</ol>
+						</nav>
+					</div>
+					<div class="ms-auto">
+						<div class="btn-group">
+							<button type="button" class="btn btn-light">Settings</button>
+							<button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">	<span class="visually-hidden">Toggle Dropdown</span>
+							</button>
+							<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end">	<a class="dropdown-item" href="javascript:;">Action</a>
+								<a class="dropdown-item" href="javascript:;">Another action</a>
+								<a class="dropdown-item" href="javascript:;">Something else here</a>
+								<div class="dropdown-divider"></div>	<a class="dropdown-item" href="javascript:;">Separated link</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--end breadcrumb-->
+
+				 <div class="card">
+					<div class="row g-0">
+					  <div class="col-md-3 border-end">
+						<img src="@Connection.DefaultConnection/Images/@Model.Images.FirstOrDefault()" class="img-fluid" alt="..." style="padding:15px">
+						<div class="row mb-3 row-cols-auto g-2 justify-content-center mt-3">
+							@foreach (var img in Model.Images)
+							{
+								<div class="col"> <a value="@img" data-toggle="modal" data-image="@img"  style="cursor: pointer;" data-target="viewImage" ><img src="@Connection.DefaultConnection/Images/@img" width="70" height="70" style="object-fit:cover;" class="border rounded cursor-pointer" alt="" onclick="viewImage(this.src)"></a></div>	
+							}
+							
+							@*<div class="col"><img src="https://via.placeholder.com/110x110" width="70" class="border rounded cursor-pointer" alt=""></div>
+							<div class="col"><img src="https://via.placeholder.com/110x110" width="70" class="border rounded cursor-pointer" alt=""></div>
+							<div class="col"><img src="https://via.placeholder.com/110x110" width="70" class="border rounded cursor-pointer" alt=""></div>*@
+						</div>
+					  </div>
+					  <div class="col-md-9">
+						<div class="card-body">
+						  <h4 class="card-title">@Model.Title (@Model.InternalCode)</h4>
+
+						  <p class="card-text fs-6">@Model.Description</p>
+						  <dl class="row">
+							<dt class="col-sm-3">Артикул</dt>
+							@if (Model.InternalCode == null)
+							{ <dd class="col-sm-9">-</dd> }
+							else
+							{ <dd class="col-sm-9">@Model.InternalCode</dd> }
+
+							<dt class="col-sm-3">Вендор</dt>
+							<dd class="col-sm-9">@Model.Vendor</dd>
+						  
+							<dt class="col-sm-3">Delivery</dt>
+							<dd class="col-sm-9">Russia, USA, and Europe </dd>
+						  </dl>
+						  <hr>
+						  <!--Accordion Start-->
+							<div class="accordion" id="accordionExample">
+
+								<!--Attribute Item-->
+								<div class="accordion-item">
+									<h2 class="accordion-header" id="headingTwo">
+										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+											data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+											<div class="container">
+												<div class="row">
+													<div class="col fw-bold"> Аттрибуты </div>
+												</div>
+											</div>
+										</button>
+									</h2>
+
+									<div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+										data-bs-parent="#accordionExample">
+										<div class="accordion-body">
+
+
+											<table class="table">
+												<thead>
+													<tr>
+														<th>Название</th>
+														<th>Значение</th>
+														<th>Тип</th>
+													</tr>
+												</thead>
+
+												<tbody>
+													@if (Model.Attributes != null)
+													{
+														foreach (var attr in Model.Attributes)
+														{
+															<tr>
+																<td>@attr.AttributeEntity</td>
+																@if (@attr.Value.StartsWith("https") || attr.Value.StartsWith("http"))
+																{
+																	<td><a href="@attr.Value" target="_blank">Документ</a></td>
+																}
+																else
+																{
+																	<td>@attr.Value</td>
+																}
+                                                    
+																<td>@attr.Unit</td>
+															</tr>
+														}   
+													}
+												</tbody>
+											</table>
+
+										</div>
+									</div>
+								</div>
+								<!--Attribute Item END-->
+
+								<!--Document Item-->
+								<div class="accordion-item">
+									<h2 class="accordion-header" id="headingThree">
+										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+											data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+											<div class="container">
+												<div class="row">
+													<div class="col fw-bold"> Документы </div>
+												</div>
+											</div>
+										</button>
+									</h2>
+									<div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+										data-bs-parent="#accordionExample">
+										<div class="accordion-body">
+
+											<table class="table">
+												<thead>
+													<tr>
+														<th>Тип</th>
+														<th>StartDate</th>
+														<th>EndDate</th>
+														<th>Ссылка</th>
+														<th>Удалён</th>
+													</tr>
+												</thead>
+												<tbody>
+													@if (Model.Documents != null)
+													{
+													 foreach (var item in Model.Documents)
+													{
+													 <tr>
+														<td>@item</td>
+													</tr>
+													}
+													}
+                                        
+												</tbody>
+
+												@*<tbody>
+													@if (Model.Documents != null)
+													{
+													 foreach (var item in Model.Documents)
+													{
+													 <tr>
+														<td>@item.Type</td>
+														<td>@item.StartDate</td>
+														<td>@item.EndDate</td>
+														<td><a class="link-dark" href="@item.Url">Ссылка</a></td>
+														<td>нет</td>
+													</tr>
+													}
+													}
+                                        
+												</tbody>*@
+											</table>
+
+                          
+										</div>
+									</div>
+
+								</div>
+							</div>
+							<!--Document Item END-->
+
+							
+							<!--Image Preview Modal-->
+							<div class="modal fade" id="viewImage" tabindex="-1" aria-labelledby="SomeLabel" aria-hidden="true">
+							   <div class="modal-dialog modal-lg">
+								   <div class="modal-content">
+									   <div class="modal-header" style="height:25px">
+										   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									   </div>
+									   <div class="modal-body">
+										   @if ("my_image" == null)
+										   {
+											   <div>img null</div>
+										   }
+                               
+										   <img style="max-width:750px;max-height:800px; display:block; margin-left:auto; margin-right: auto;" id="my_image" />
+									   </div>
+                         
+								   </div>
+							   </div>
+						   </div>
+						   <!--Accordion END-->
+
+						</div>
+
+						</div>
+					  </div>
+					</div>
+                   
+
+
+
+					
+					
+				  
+			</div>
+		</div>
+		<!--end page wrapper -->

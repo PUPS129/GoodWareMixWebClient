@@ -1,0 +1,212 @@
+﻿
+@using GoodWareMixWebClient.Model
+@using GoodWareMixWebClient.Model.Entity
+
+
+@model PagedResponse<List<Log>>
+
+@{
+    ViewData["Title"] = "Журнал событий";
+}
+
+
+<head>
+	<script src="~/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<div class="page-wrapper">
+	<div class="page-content">
+		<h4>Журнал событий</h4>
+        
+        <div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+                        <a type="button" class="btn btn-danger btn-hover-alt btn-sm compItem" style="float:right" asp-action="DeleteLogModal" asp-controller="Logging"> <i class="bi bi-trash btn-sm"></i> Очистить журнал
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!--MainTable Section-->
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+						<table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    @*<th> ID </th>*@
+                                    <th> Дата </th>
+                                    <th> Статус </th>
+                                    <th> Результат </th>
+                                    <th> Поставщик </th>
+                                    <th> Добавлено </th>
+                                    <th> Изменено </th>
+                                    <th> Заморожено </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Data != null)
+                                {
+                                    foreach (var log in Model.Data)
+                                    {
+                                        <tr>
+                                            @*<td>@log.id</td>*@
+                                            <td>@log.Date.ToLocalTime()</td>
+                                            <td>
+                                                @if (log.Status == "Импорт завершился")
+                                                {
+                                                    <div class="d-flex align-items-center text-success"><i class="bx bx-check-circle font-18 me-1"></i> @log.Status</div>
+                                                }
+                                                else if (log.Status == "Данные обрабатываются...")
+                                                {
+                                                    <div class="d-flex align-items-center text-warning"><i class="bx bx-radio-circle-marked bx-burst bx-rotate-90 align-middle font-18 me-1"></i> @log.Status </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="d-flex align-items-center text-danger "><i class="bx bx-error-circle font-18 me-1"></i> @log.Status</div>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (log.Result == "Выполненно")
+                                                {
+                                                    <div class="badge rounded-pill text-success bg-light-success p-2 text-uppercase px-3"><i class="bx bxs-circle me-1"></i>Выполнено</div>
+                                                }
+                                                else if (log.Result == "В процессе")
+                                                {
+                                                    <div class="badge rounded-pill text-warning bg-light-warning p-2 text-uppercase px-3"><i class="bx bxs-circle align-middle me-1"></i>@log.Result</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="badge rounded-pill text-danger bg-light-danger p-2 text-uppercase px-3"><i class="bx bxs-circle align-middle me-1" ></i>@log.Result</div>
+                                                }
+                                                
+                                            </td>
+                                            <td>@log.SupplierId</td>
+                                            <td>@log.TotalAdded</td>
+                                            <td>@log.TotalEdit</td>
+                                            <td>@log.TotalFreezed</td>
+                                        </tr>
+                                       
+                                    }
+                                }
+                            </tbody>
+                        </table>
+					</div>
+				</div>
+			</div>
+		</div>
+        <!--MainTable Section END-->
+
+        <!--Empty Search Case-->
+        @if (Model.Data.Count() == 0)
+        {
+            <div class="row">
+			    <div class="col-12">
+				    <div class="card">
+					    <div class="card-body" style="text-align:center; display:table; height:600px; line-height:600px;">
+                            <span style="display:table-cell; vertical-align:middle;">
+                                <h2>Журнал пуст</h2>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <!--Empty Search Case END-->
+
+        @if (Model.Data.Count() != 0)
+        {
+        <!--Pagination Section-->
+        <div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-body">
+                        <form asp-action="Index" asp-controller="Logging">
+
+                            <div style="float:right">
+                            <select class="form-select" onchange="this.form.submit()" name="PageSize" style="width:Auto; display:inline-block;" id="PageSize">
+                                        <option value="@Model.PageSize">@Model.PageSize</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                    <div style="display:inline-block;">
+
+                                    <ul class="pagination">
+
+                                        <li class="page-item"><a class="page-link" asp-action="Index"
+                                                asp-controller="Logging" asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@(1)"><i
+                                                    class="bi bi-chevron-double-left"></i></a></li>
+                                        @if (Model.PreviousPage != null)
+                                            {
+                                            <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Logging"
+                                                    asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@((Model.PageNumber <= 1 ? 1 : Model.PageNumber-1))"><i
+                                                    class="bi bi-chevron-left"></i></a></li>    
+                                            }
+                                            @if (Model.NextPage != null)
+                                            {
+                                                <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Logging"
+                                                asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@((Model.PageNumber == @Model.TotalPages ? @Model.TotalPages : Model.PageNumber+1))"><i
+                                                    class="bi bi-chevron-right"></i></a></li>
+                                            }
+
+                                    
+
+                                        <li class="page-item" style="margin-left:10px"><a class="page-link"
+                                                asp-action="Index" asp-controller="Logging"
+                                                    asp-route-PaginationBool="@(true)"  asp-route-PageNumber="@(@Model.TotalPages)"><i
+                                                    class="bi bi-chevron-double-right"></i></a></li>
+                                    </ul>
+                                    </div>
+                                        <p class="lh-lg" style="display:inline-block; margin-left:25px">
+                                    Страница
+                                    @Model.PageNumber
+                                    из
+                                    @Model.TotalPages
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Pagination Section END-->            
+        }
+
+
+	</div>
+</div>
+
+
+<!--Modal Windows Section-->
+<div id="modDialog" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div id="dialogContent" class="modal-dialog"></div>
+</div>
+<!--Modal Windows Section END-->
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+@section scripts {
+    <script>
+     $(function () {
+        $.ajaxSetup({ cache: false });
+        $(".compItem").click(function (e) {
+ 
+            e.preventDefault();
+            $.get(this.href, function (data) {
+                $('#dialogContent').html(data);
+                $('#modDialog').modal('show');
+                });
+            });
+        })
+    </script>
+
+}

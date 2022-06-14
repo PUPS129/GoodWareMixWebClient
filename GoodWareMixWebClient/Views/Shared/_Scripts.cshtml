@@ -1,0 +1,106 @@
+﻿<!--Script Section-->
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
+
+        <script>
+		$(function () {
+			$('[data-bs-toggle="tooltip"]').tooltip();
+		})
+	    </script>
+
+        <script>
+            $(document.getElementById('supplierName'))
+              .focusin(function() {
+                document.getElementById('SubmitAddFormBtn').disabled = true;
+              });
+        </script>
+
+        <script>
+
+     //   jQuery.ui.autocomplete.prototype._resizeMenu = function () {
+	    //    var ul = this.menu.element;
+	    //    ul.outerWidth(this.element.outerWidth());
+	    //}
+
+        $(document.getElementById('NameTask'))
+          .focusout(function() {
+            
+            var taskNameToCheck = document.getElementById('NameTask').value;
+            $.ajax({
+
+                url: "@Url.Action("GetTask")",
+                type: "GET",
+                data: {NameTask: taskNameToCheck} ,
+                success: function(data) {
+                    //document.getElementById('CheckNameSpinner').style.display = "none";
+                    if (data == 0)
+                    {
+                        document.getElementById('SubmitAddFormBtn').disabled = false;
+                    }
+                    else {
+                        document.getElementById('SubmitAddFormBtn').disabled = true;
+                    }
+                }
+            });
+
+
+          });
+    </script>
+
+        <script type="text/javascript">
+        
+
+        function GetSupplierName()
+                {
+            let arr = [];
+            var valueinput = document.getElementById('autocompleteSupplier').value;
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("GetSupplier","Task")",
+                    data: {Search: valueinput},
+                    //contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (msg) {
+                        for(let i = 0; i < msg.data.length;i++)
+                        {
+
+                            console.log(msg.data[i].supplierName);
+                            arr.push(msg.data[i].supplierName);
+                            
+                        }
+                        console.log("-------------------");
+                    },
+                    error: function (req, status, error) {
+                        alert(error);
+                    }
+                }); 
+
+            return arr;
+                }
+
+
+
+                var input = document.getElementById('autocompleteSupplier');
+
+                input.oninput = function() {
+            $( "#autocompleteSupplier" ).autocomplete({ source: GetSupplierName()});
+            $( "#autocompleteSupplier" ).autocomplete({
+                response: function( event, ui ) {
+                    for ( var i = 0; i<ui.content.length; i++ ) {
+             
+                        console.log(ui.content[i].value);
+                        //if (ui.content[i].value == $(this).val()){
+                        //    this.value = "";
+                        //}
+                        console.log("************");
+                    }
+                    //if (ui.content.length == 0)
+                    //{
+                    //    this.value = "";
+                    //}
+                },
+            });
+                }
+    </script> 
+<!--Script Section END-->

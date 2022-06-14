@@ -1,0 +1,23 @@
+﻿@using GoodWareMixWebClient.Model
+@using MongoDB.Bson
+@using Newtonsoft.Json
+@model ProFileSupplier
+
+
+<div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content bg-dark">
+        <div class="modal-header">
+            <h5 class="modal-title" id="DeleteSupplierLabel1">Удаление</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form asp-controller="Supplier" asp-action="DeleteSupplierProductConfirm">
+            <input hidden asp-for="Id" id="supplierId" name="supplierId" value="@Model.Id"/>
+            <input hidden asp-for="SupplierName" id="supplierName" value="@Model.SupplierName"/>
+            <div class="modal-body"> Удалить все товары поставщика  <strong>@Model.SupplierName</strong> ?</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <input type="submit" class="btn btn-danger" value="Удалить"/>
+            </div>
+        </form>
+    </div>
+</div>

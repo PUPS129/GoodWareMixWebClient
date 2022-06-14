@@ -1,0 +1,99 @@
+﻿<html >
+
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!--favicon-->
+	<link rel="icon" href="~/Image/logoTab.png" type="image/png" style="width:1px; height:1px"/>
+	<!--plugins-->
+	<link href="~/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+	<link href="~/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
+	<link href="~/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+	<!-- Bootstrap CSS -->
+	<link href="~/css/bootstrap.min.css" rel="stylesheet">
+	<link href="~/css/app.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js@latest/pace-theme-default.min.css">
+    <link rel="stylesheet" href="~/css/flash.css" />
+
+	@*<link href="~/css/boxicons-2.1.2/css/boxicons.css" rel="stylesheet">*@
+	<link rel="stylesheet" href="~/css/bootstrap-icons/bootstrap-icons.css" />
+
+    <title>@ViewData["Title"]</title>
+</head>
+
+<body class="bg-theme bg-theme9" style="width:100%">
+    
+	<header style="font-size:medium">
+        <nav class="navbar navbar-expand-lg navbar navbar-dark bg-dark">
+          <div class="container-fluid">
+            <img src="~/Image/logo3Border.png" class="logo-icon" alt="logo icon">
+            <h4 class="logo-text">GoodWareMix</h4>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="margin-left:30px">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" asp-area="" asp-controller="Product" asp-action="Index">Список товаров</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" asp-area="" asp-controller="Supplier" asp-action="Index">Поставщики</a>
+                </li>
+
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" asp-area="" asp-controller="Attribute" asp-action="Index">Словарь аттрибутов</a>
+                </li>
+
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" asp-area="" asp-controller="Task" asp-action="Index">Задачи</a>
+                </li>
+        
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" asp-area="" asp-controller="Logging" asp-action="Index">События</a>
+                </li>
+
+              </ul>
+
+            </div>
+          </div>
+        </nav>
+    </header>
+		
+	<div>
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+@*	<footer class="bg-dark text-center text-white mt-auto" style="left: 250px; padding: 10px 10px 0px 10px;">
+				<p class="mb-0">Copyright © 2021. All right reserved.</p>
+	</footer>*@
+
+	</div>
+
+
+
+
+	<!-- Bootstrap JS -->
+@*	<script src="~/js/bootstrap.bundle.min.js"></script>
+*@   
+
+    <script data-pace-options='{ "ajax": false }' src="https://cdn.jsdelivr.net/npm/pace-js@latest/pace.min.js"></script>
+
+	<!--plugins-->
+	<script src="~/plugins/simplebar/js/simplebar.min.js"></script>
+	<script src="~/plugins/metismenu/js/metisMenu.min.js"></script>
+	<script src="~/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+	<!--app JS-->
+	
+
+
+@*    <script src="~/js/site.js" asp-append-version="true"></script>
+*@
+    @await Component.InvokeAsync("Notyf")
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

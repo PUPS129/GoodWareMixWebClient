@@ -1,0 +1,22 @@
+﻿@using GoodWareMixWebClient.Model;
+@using GoodWareMixWebClient.Model.Entity;
+
+@model Log
+
+<div class="modal-dialog modal-lg modal-dialog-centered">
+	<div class="modal-content bg-dark">
+		<div class="modal-header">
+			<h5 class="modal-title" id="DeleteSupplierLabel">Очистка</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+            Вы действительно хотите очистить журнал?
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Назад</button>
+            <a type="button" class="btn btn-danger btn-hover-alt" asp-action="Delete"
+                asp-controller="Logging">Очистить</a>
+        </div>
+	</div>
+</div>

@@ -1,0 +1,27 @@
+﻿@using MongoDB.Bson
+@using Newtonsoft.Json
+@using GoodWareMixWebClient.Model
+
+@model AttributeEntity
+
+<!--Modal Window Section-->
+<div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content bg-dark">
+        <div class="modal-header">
+            <h5 class="modal-title" id="DeleteSupplierLabel">Удаление</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form asp-controller="Attribute" asp-action="DeleteConfirm">
+            <input hidden asp-for="NameAttribute" id="supplierName" value="@Model.NameAttribute"/>
+            <input hidden asp-for="Id" id="id" value="@Model.Id"/>
+
+            <div class="modal-body">Вы действительно хотите удалить аттрибут <strong>@Model.NameAttribute</strong> ? </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <input type="submit" class="btn btn-danger" value="Удалить"/>
+            </div>
+        </form>
+    </div>
+</div>
+<!--Modal Window Section END-->
